@@ -44,7 +44,7 @@ void setup(){
   for(int i=0; i < SEGU_KETA.length; i++){
     arduino.pinMode(SEGU_KETA[i],Arduino.OUTPUT);
   }
-  frameRate(30);
+  frameRate(1);
 }
 
 void draw(){
@@ -54,9 +54,9 @@ void draw(){
     int n = i;
     for(int keta = 0; keta < 4; keta++)
     {
-      arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
       for(int j = 0; j < USE_PIN.length; j++){arduino.digitalWrite(USE_PIN[j], INT_MATRIX[n%10][j]);}
-      clear_segments();
+      arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
+      delay(5);
       arduino.digitalWrite(SEGU_KETA[keta], Arduino.LOW);
       n /= 10; 
     }
