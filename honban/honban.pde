@@ -5,9 +5,9 @@ Arduino arduino;
 PFont myFont;
 
 // button pin
-final int BUTTON1_PIN  = 1;
-final int BUTTON2_PIN  = 2;
-final int BUTTON3_PIN  = 3;
+final int BUTTON1_PIN  = 15;
+final int BUTTON2_PIN  = 16;
+final int BUTTON3_PIN  = 17;
 
 //7segment pin
 final int SEGU_KETA[] = {7,9,10,13};
@@ -48,24 +48,56 @@ void setup(){
 }
 
 void draw(){
-  clock();
-  showMatrix();
+  arduino.digitalWrite(4, Arduino.HIGH);
+  for (int i = 0; i < 10000; i++) 
+  {
+    int n = i;
+    for(int keta = 0; keta < 4; keta++)
+    {
+      arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
+      for(int j = 0; j < USE_PIN.length; j++){arduino.digitalWrite(USE_PIN[j], INT_MATRIX[n%10][j]);}
+      clear_segments();
+      arduino.digitalWrite(SEGU_KETA[keta], Arduino.LOW);
+      n /= 10; 
+    }
+  }
+}
+
+void clear_segments() {
+  for (int i = 0; i < USE_PIN.length; i++) {
+    arduino.digitalWrite(USE_PIN[i], Arduino.HIGH);
+  }
 }
 
 void clock(){
   h = hour();
   m = minute();
-  println("now time "+h+":"+m+":");
+  println("now time "+h+":"+m);
+  showMatrix(h,m);
 }
 
-void showMatrix(){
+
+
+void showMatrix(int a, int b){
+  arduino.digitalWrite(4, Arduino.HIGH);
+  
   for(int keta = 0; keta < 4; keta++){
     arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
     for(int i = 0; i < USE_PIN.length; i++){
-      arduino.digitalWrite(USE_PIN[i], INT_MATRIX[0][i]);
-      arduino.digitalWrite(4, Arduino.HIGH);
+      if(keta == 0){
+        arduino.digitalWrite(USE_PIN[i], INT_MATRIX[a/10][i]);
+      }
+//      else if(keta == 1){
+//        arduino.digitalWrite(USE_PIN[i], INT_MATRIX[a%10][i]);
+//      }
+//      else if(keta == 2){
+//        arduino.digitalWrite(USE_PIN[i], INT_MATRIX[b/10][i]);
+//      }
+//      else if(keta == 3){
+//        arduino.digitalWrite(USE_PIN[i], INT_MATRIX[b%10][i]);
+//      }
     }
-    delay(6);
+    delay(500);
   }
 }
 
