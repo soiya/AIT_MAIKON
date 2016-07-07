@@ -10,7 +10,7 @@ final int BUTTON2_PIN  = 16;
 final int BUTTON3_PIN  = 17;
 
 //7segment pin
-final int SEGU_KETA[] = {7,9,10,13};
+final int SEGU_KETA[] = {13,10,9,7};
 final int USE_PIN[] = {2,3,5,8,12,11,6};
 final int INT_MATRIX[][] = {
   {0,0,0,0,0,0,1}, // 0
@@ -44,29 +44,11 @@ void setup(){
   for(int i=0; i < SEGU_KETA.length; i++){
     arduino.pinMode(SEGU_KETA[i],Arduino.OUTPUT);
   }
-  frameRate(1);
+  frameRate(30);
 }
 
 void draw(){
-  arduino.digitalWrite(4, Arduino.HIGH);
-  for (int i = 0; i < 10000; i++) 
-  {
-    int n = i;
-    for(int keta = 0; keta < 4; keta++)
-    {
-      for(int j = 0; j < USE_PIN.length; j++){arduino.digitalWrite(USE_PIN[j], INT_MATRIX[n%10][j]);}
-      arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
-      delay(5);
-      arduino.digitalWrite(SEGU_KETA[keta], Arduino.LOW);
-      n /= 10; 
-    }
-  }
-}
-
-void clear_segments() {
-  for (int i = 0; i < USE_PIN.length; i++) {
-    arduino.digitalWrite(USE_PIN[i], Arduino.HIGH);
-  }
+  clock();
 }
 
 void clock(){
@@ -82,22 +64,30 @@ void showMatrix(int a, int b){
   arduino.digitalWrite(4, Arduino.HIGH);
   
   for(int keta = 0; keta < 4; keta++){
-    arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
-    for(int i = 0; i < USE_PIN.length; i++){
-      if(keta == 0){
-        arduino.digitalWrite(USE_PIN[i], INT_MATRIX[a/10][i]);
-      }
-//      else if(keta == 1){
-//        arduino.digitalWrite(USE_PIN[i], INT_MATRIX[a%10][i]);
-//      }
-//      else if(keta == 2){
-//        arduino.digitalWrite(USE_PIN[i], INT_MATRIX[b/10][i]);
-//      }
-//      else if(keta == 3){
-//        arduino.digitalWrite(USE_PIN[i], INT_MATRIX[b%10][i]);
-//      }
+    if(keta == 0){
+      for(int i = 0; i < USE_PIN.length; i++){arduino.digitalWrite(USE_PIN[i], INT_MATRIX[a/10][i]);}
+      arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
+      delay(5);
+      arduino.digitalWrite(SEGU_KETA[keta], Arduino.LOW);
     }
-    delay(500);
+    else if(keta == 1){
+      for(int i = 0; i < USE_PIN.length; i++){arduino.digitalWrite(USE_PIN[i], INT_MATRIX[a%10][i]);}
+      arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
+      delay(5);
+      arduino.digitalWrite(SEGU_KETA[keta], Arduino.LOW);
+    }
+    else if(keta == 2){
+      for(int i = 0; i < USE_PIN.length; i++){arduino.digitalWrite(USE_PIN[i], INT_MATRIX[b/10][i]);}
+      arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
+      delay(5);
+      arduino.digitalWrite(SEGU_KETA[keta], Arduino.LOW);
+    }
+    else if(keta == 3){
+      for(int i = 0; i < USE_PIN.length; i++){arduino.digitalWrite(USE_PIN[i], INT_MATRIX[b%10][i]);}
+      arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
+      delay(5);
+      arduino.digitalWrite(SEGU_KETA[keta], Arduino.LOW);
+    }
   }
 }
 
