@@ -4,8 +4,17 @@ import cc.arduino.*;
 Arduino arduino;
 PFont myFont;
 
-final int SEGU_PIN  = 2;
+// button pin
+final int BUTTON1_PIN  = 1;
+final int BUTTON2_PIN  = 2;
+final int BUTTON3_PIN  = 3;
 
+// button state
+int button1State = 0;
+int button2State = 0;
+int button3State = 0;
+
+//7segment pin
 final int SEGU_KETA[] = {7,9,10,13};
 final int USE_PIN[] = {2,3,5,8,12,11,6};
 final int INT_MATRIX[][] = {
@@ -49,11 +58,19 @@ void showMatrix(){
 }
 
 void button_read(){
-  if(arduino.digitalRead(button_pin) == 1){
-    n++;
-    delay(200);
+  if(arduino.digitalRead(BUTTON1_PIN) == 1){
+    button1State++;
   }
-  if(n == 10){
-    n = 0;
+  if(arduino.digitalRead(BUTTON2_PIN) == 1){
+    button2State++;
+  }
+  if(arduino.digitalRead(BUTTON3_PIN) == 1){
+    //later
+  }
+  if(button1State == 13){
+    button1State = 0;
+  }
+  if(button2State == 60){
+    button1State = 0;
   }
 }
