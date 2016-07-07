@@ -9,11 +9,6 @@ final int BUTTON1_PIN  = 1;
 final int BUTTON2_PIN  = 2;
 final int BUTTON3_PIN  = 3;
 
-// button state
-int button1State = 0;
-int button2State = 0;
-int button3State = 0;
-
 //7segment pin
 final int SEGU_KETA[] = {7,9,10,13};
 final int USE_PIN[] = {2,3,5,8,12,11,6};
@@ -30,11 +25,22 @@ final int INT_MATRIX[][] = {
   {1,0,0,0,0,0,0}, // 9 
 };
 
+// button state
+int button1State = 0;
+int button2State = 0;
+int button3State = 0;
+
+// time state
+int h = 0;
+int m = 0;
+
 void setup(){
   size(200,200);
   arduino=new Arduino(this,"/dev/cu.usbserial-14P50261");
   
-  arduino.pinMode(SEGU_PIN,Arduino.OUTPUT);
+  arduino.pinMode(BUTTON1_PIN,Arduino.INPUT);
+  arduino.pinMode(BUTTON2_PIN,Arduino.INPUT);
+  arduino.pinMode(BUTTON3_PIN,Arduino.INPUT);
   for(int i=0; i < SEGU_KETA.length; i++){
     arduino.pinMode(SEGU_KETA[i],Arduino.OUTPUT);
   }
@@ -42,8 +48,14 @@ void setup(){
 }
 
 void draw(){
-
+  clock();
   showMatrix();
+}
+
+void clock(){
+  h = hour();
+  m = minute();
+  println("now time "+h+":"+m+":");
 }
 
 void showMatrix(){
