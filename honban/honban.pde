@@ -4,6 +4,9 @@ import cc.arduino.*;
 Arduino arduino;
 PFont myFont;
 
+// vibration Motor pin
+final int VIBRATION_PIN = 14; 
+
 // button pin
 final int BUTTON1_PIN  = 15;
 final int BUTTON2_PIN  = 16;
@@ -38,18 +41,28 @@ void setup(){
   size(200,200);
   arduino=new Arduino(this,"/dev/cu.usbserial-14P50261");
   
-  arduino.pinMode(BUTTON1_PIN,Arduino.INPUT);
-  arduino.pinMode(BUTTON2_PIN,Arduino.INPUT);
-  arduino.pinMode(BUTTON3_PIN,Arduino.INPUT);
+  //vibration motor  setup
+  arduino.pinMode(VIBRATION_PIN,Arduino.OUTPUT);
+  
+  // button setup
+  // Caution: INPUT_PULLUP (http://mag.switch-science.com/2013/05/23/input_pullup/)
+  arduino.pinMode(BUTTON1_PIN,Arduino.INPUT_PULLUP);
+  arduino.pinMode(BUTTON2_PIN,Arduino.INPUT_PULLUP);
+  arduino.pinMode(BUTTON3_PIN,Arduino.INPUT_PULLUP);
+  
+  // 7segument setup
   for(int i=0; i < SEGU_KETA.length; i++){
     arduino.pinMode(SEGU_KETA[i],Arduino.OUTPUT);
   }
+  
+  // franerate setup
   frameRate(30);
 }
 
 void draw(){
   clock();
 }
+
 
 void clock(){
   h = hour();
@@ -91,20 +104,29 @@ void showMatrix(int a, int b){
   }
 }
 
-void button_read(){
-  if(arduino.digitalRead(BUTTON1_PIN) == 1){
+void buttonRead(){
+  // button behavior
+  if(arduino.digitalRead(BUTTON1_PIN) == Arduino.LOW){
     button1State++;
   }
-  if(arduino.digitalRead(BUTTON2_PIN) == 1){
+  if(arduino.digitalRead(BUTTON2_PIN) == Arduino.LOW){
     button2State++;
   }
-  if(arduino.digitalRead(BUTTON3_PIN) == 1){
+  if(arduino.digitalRead(BUTTON3_PIN) == Arduino.LOW){
     //later
   }
+  
+  // 7segment display reset
+  // hours
   if(button1State == 13){
     button1State = 0;
   }
+  // minute
   if(button2State == 60){
     button1State = 0;
   }
+}
+
+void vivrationRead(){
+  arduino.digitalWrite(VIBRATION_PIN, Arduino.HIGH);
 }
