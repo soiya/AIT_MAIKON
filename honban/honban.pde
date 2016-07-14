@@ -34,8 +34,15 @@ int button2State = 0;
 int button3State = 0;
 
 // time state
-int h = 0;
-int m = 0;
+int now_h = 0;
+int now_m = 0;
+
+// task state
+int task_minutes = -1;
+int task_hours = -1;
+
+//flagment
+boolean vibration_flag = false;
 
 void setup(){
   size(200,200);
@@ -46,9 +53,9 @@ void setup(){
   
   // button setup
   // Caution: INPUT_PULLUP (http://mag.switch-science.com/2013/05/23/input_pullup/)
-  arduino.pinMode(BUTTON1_PIN,Arduino.INPUT_PULLUP);
-  arduino.pinMode(BUTTON2_PIN,Arduino.INPUT_PULLUP);
-  arduino.pinMode(BUTTON3_PIN,Arduino.INPUT_PULLUP);
+  arduino.pinMode(BUTTON1_PIN,Arduino.INPUT);
+  arduino.pinMode(BUTTON2_PIN,Arduino.INPUT);
+  arduino.pinMode(BUTTON3_PIN,Arduino.INPUT);
   
   // 7segument setup
   for(int i=0; i < SEGU_KETA.length; i++){
@@ -56,22 +63,54 @@ void setup(){
   }
   
   // franerate setup
-  frameRate(30);
+  frameRate(120);
 }
 
 void draw(){
+  buttonRead();
   clock();
 }
 
 
 void clock(){
-  h = hour();
-  m = minute();
-  println("now time "+h+":"+m);
-  showMatrix(h,m);
+  now_h = hour();
+  now_m = minute();
+//  println("now time "+h+":"+m);
+  showMatrix(now_h,now_m);
 }
 
+void buttonRead(){
+  // button behavior
+  if(arduino.digitalRead(BUTTON1_PIN) == Arduino.HIGH){
+    button1State++;
+    println("button1State = "+button1State);
+  }
+  else if(arduino.digitalRead(BUTTON2_PIN) == Arduino.HIGH){
+    button2State++;
+    println("button2State = "+button2State);
+  }
+  else if(arduino.digitalRead(BUTTON3_PIN) == Arduino.HIGH){
+    //later
+  }
+  
+  // 7segment display reset
+  // hours
+  if(button1State == 13){
+    button1State = 0;
+  }
+  // minute
+  if(button2State == 60){
+    button1State = 0;
+  }
+}
 
+void vivrationRead(){
+  clock();
+  if(task_hours == now_h && task_minutes == now_m){
+    arduino.digitalWrite(VIBRATION_PIN, Arduino.HIGH);
+    vibration_flag = true;
+  }
+}
 
 void showMatrix(int a, int b){
   arduino.digitalWrite(4, Arduino.HIGH);
@@ -102,31 +141,4 @@ void showMatrix(int a, int b){
       arduino.digitalWrite(SEGU_KETA[keta], Arduino.LOW);
     }
   }
-}
-
-void buttonRead(){
-  // button behavior
-  if(arduino.digitalRead(BUTTON1_PIN) == Arduino.LOW){
-    button1State++;
-  }
-  if(arduino.digitalRead(BUTTON2_PIN) == Arduino.LOW){
-    button2State++;
-  }
-  if(arduino.digitalRead(BUTTON3_PIN) == Arduino.LOW){
-    //later
-  }
-  
-  // 7segment display reset
-  // hours
-  if(button1State == 13){
-    button1State = 0;
-  }
-  // minute
-  if(button2State == 60){
-    button1State = 0;
-  }
-}
-
-void vivrationRead(){
-  arduino.digitalWrite(VIBRATION_PIN, Arduino.HIGH);
 }
