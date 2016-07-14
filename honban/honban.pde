@@ -8,9 +8,9 @@ PFont myFont;
 final int VIBRATION_PIN = 14; 
 
 // button pin
-final int BUTTON1_PIN  = 15;
+final int BUTTON1_PIN  = 17;
 final int BUTTON2_PIN  = 16;
-final int BUTTON3_PIN  = 17;
+final int BUTTON3_PIN  = 15;
 
 //7segment pin
 final int SEGU_KETA[] = {13,10,9,7};
@@ -31,7 +31,6 @@ final int INT_MATRIX[][] = {
 // button state
 int button1State = 0;
 int button2State = 0;
-boolean button3State = false;
 
 // time state
 int now_h = 0;
@@ -40,9 +39,9 @@ int now_m = 0;
 // task state
 int task_minutes = 99;
 int task_hours = 99;
-
 //flagment
 boolean vibration_flag = false;
+boolean task_button_flag = false;
 
 void setup(){
   size(200,200);
@@ -52,10 +51,10 @@ void setup(){
   arduino.pinMode(VIBRATION_PIN,Arduino.OUTPUT);
   
   // button setup
-  // Caution: INPUT_PULLUP (http://mag.switch-science.com/2013/05/23/input_pullup/)
   arduino.pinMode(BUTTON1_PIN,Arduino.INPUT);
   arduino.pinMode(BUTTON2_PIN,Arduino.INPUT);
   arduino.pinMode(BUTTON3_PIN,Arduino.INPUT);
+  
   
   // 7segument setup
   for(int i=0; i < SEGU_KETA.length; i++){
@@ -67,13 +66,28 @@ void setup(){
 }
 
 void draw(){
-  if(button3State){
+  
+  if((task_hours == now_h && task_minutes == now_m) && vibration_flag){
+    vivrationOn();
+  }
+  else if(task_button_flag){
     buttonRead();
     setTask();
   }
   else{
     buttonRead();
     clock();
+  }
+}
+
+void vivrationOn(){
+  clock();
+  
+  arduino.digitalWrite(VIBRATION_PIN, Arduino.HIGH);
+  if(arduino.digitalRead(BUTTON3_PIN) == Arduino.HIGH){
+    arduino.digitalWrite(VIBRATION_PIN, Arduino.LOW);
+    vibration_flag = false;
+    delay(200);
   }
 }
 
@@ -87,30 +101,28 @@ void setTask(){
 void clock(){
   now_h = hour();
   now_m = minute();
-//  println("now time "+h+":"+m);
   showMatrix(now_h,now_m);
 }
 
 void buttonRead(){
   // button behavior
-  if(arduino.digitalRead(BUTTON1_PIN) == Arduino.HIGH){
+  if( (arduino.digitalRead(BUTTON1_PIN) == Arduino.HIGH) && task_button_flag){
     button1State++;
     delay(200);
-//    println("button1State = "+button1State);
   }
-  if(arduino.digitalRead(BUTTON2_PIN) == Arduino.HIGH){
+  if( (arduino.digitalRead(BUTTON2_PIN) == Arduino.HIGH) && task_button_flag){
     button2State++;
     delay(100);
-//    println("button2State = "+button2State);
   }
   if(arduino.digitalRead(BUTTON3_PIN) == Arduino.HIGH){
-    button3State = true;
+    if(task_button_flag) {task_button_flag = false; vibration_flag = true;}
+    else {task_button_flag = true;}
     delay(200);
   }
   
   // 7segment display reset
   // hours
-  if(button1State >= 13){
+  if(button1State >= 24){
     button1State = 0;
   }
   // minute
@@ -119,21 +131,14 @@ void buttonRead(){
   }
 }
 
-void vivrationRead(){
-  clock();
-  if(task_hours == now_h && task_minutes == now_m){
-    arduino.digitalWrite(VIBRATION_PIN, Arduino.HIGH);
-    vibration_flag = true;
-  }
-}
-
+// Arduino.LOW -> light a 7segment
 void showMatrix(int a, int b){
-  if(!button3State){arduino.digitalWrite(4, Arduino.HIGH);}
+  if(!task_button_flag){arduino.digitalWrite(4, Arduino.HIGH);}
   
   for(int keta = 0; keta < 4; keta++){
     if(keta == 0){
       for(int i = 0; i < USE_PIN.length; i++){arduino.digitalWrite(USE_PIN[i], INT_MATRIX[a/10][i]);}
-      if(button3State){arduino.digitalWrite(4, Arduino.HIGH);}
+      if(task_button_flag){arduino.digitalWrite(4, Arduino.HIGH);}
       
       arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
       delay(5);
@@ -141,7 +146,7 @@ void showMatrix(int a, int b){
     }
     else if(keta == 1){
       for(int i = 0; i < USE_PIN.length; i++){arduino.digitalWrite(USE_PIN[i], INT_MATRIX[a%10][i]);}
-      if(button3State){arduino.digitalWrite(4, 0);}
+      if(task_button_flag){arduino.digitalWrite(4, 0);}
       
       arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
       delay(5);
@@ -149,7 +154,7 @@ void showMatrix(int a, int b){
     }
     else if(keta == 2){
       for(int i = 0; i < USE_PIN.length; i++){arduino.digitalWrite(USE_PIN[i], INT_MATRIX[b/10][i]);}
-      if(button3State){arduino.digitalWrite(4, Arduino.HIGH);}
+      if(task_button_flag){arduino.digitalWrite(4, Arduino.HIGH);}
       
       arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
       delay(5);
@@ -157,7 +162,7 @@ void showMatrix(int a, int b){
     }
     else if(keta == 3){
       for(int i = 0; i < USE_PIN.length; i++){arduino.digitalWrite(USE_PIN[i], INT_MATRIX[b%10][i]);}
-      if(button3State){arduino.digitalWrite(4, Arduino.HIGH);}
+      if(task_button_flag){arduino.digitalWrite(4, Arduino.HIGH);}
       
       arduino.digitalWrite(SEGU_KETA[keta], Arduino.HIGH);
       delay(5);
