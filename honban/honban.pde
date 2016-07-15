@@ -66,7 +66,7 @@ void setup(){
 }
 
 void draw(){
-  
+  println(vibration_flag);
   if((task_hours == now_h && task_minutes == now_m) && vibration_flag){
     vivrationOn();
   }
@@ -84,7 +84,7 @@ void vivrationOn(){
   clock();
   
   arduino.digitalWrite(VIBRATION_PIN, Arduino.HIGH);
-  if(arduino.digitalRead(BUTTON3_PIN) == Arduino.HIGH){
+  if(arduino.digitalRead(BUTTON3_PIN) == Arduino.HIGH || second() == 59){
     arduino.digitalWrite(VIBRATION_PIN, Arduino.LOW);
     vibration_flag = false;
     delay(200);
@@ -115,8 +115,10 @@ void buttonRead(){
     delay(100);
   }
   if(arduino.digitalRead(BUTTON3_PIN) == Arduino.HIGH){
+    //reset flagment
+    //setting mode -> vaibration = F , 7seg DP flag = T)
     if(task_button_flag) {task_button_flag = false; vibration_flag = true;}
-    else {task_button_flag = true;}
+    else {task_button_flag = true;vibration_flag = false;}
     delay(200);
   }
   
